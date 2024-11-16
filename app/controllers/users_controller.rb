@@ -12,6 +12,6 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:email, :password, :switchbot_token)
+    params.require(:user).permit(:email, :password, :password_confirmation, :switchbot_token)
   end
 end
