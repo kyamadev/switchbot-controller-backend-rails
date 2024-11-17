@@ -1,6 +1,4 @@
 require 'net/http'
-require 'uri'
-require 'json'
 require 'openssl'
 
 class SwitchBotService
@@ -11,12 +9,6 @@ class SwitchBotService
     @secret = user.switchbot_secret
     @timestamp = (Time.now.to_f * 1000).to_i.to_s
     @sign = generate_signature
-    @headers = {
-      "Authorization" => @token,
-      "t" => @timestamp,
-      "sign" => @sign,
-      "Content-Type" => "application/json"
-    }
   end
 
   def get_devices
@@ -27,17 +19,11 @@ class SwitchBotService
     send_request(uri, request)
   end
 
-  def control_device(device_id, command, parameter = "default", command_type = "command")
+  def control_device(device_id, command, parameter = 'default', command_type = 'command')
     uri = URI("#{BASE_URL}/devices/#{device_id}/commands")
     request = Net::HTTP::Post.new(uri)
     set_headers(request)
-
-    body = {
-      command: command,
-      parameter: parameter,
-      commandType: command_type
-    }.to_json
-    request.body = body
+    request.body = { command: command, parameter: parameter, commandType: command_type }.to_json
 
     send_request(uri, request)
   end
@@ -50,7 +36,10 @@ class SwitchBotService
   end
 
   def set_headers(request)
-    @headers.each { |key, value| request[key] = value }
+    request['Authorization'] = @token
+    request['t'] = @timestamp
+    request['sign'] = @sign
+    request['Content-Type'] = 'application/json'
   end
 
   def send_request(uri, request)

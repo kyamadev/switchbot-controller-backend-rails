@@ -1,8 +1,12 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  class User < ApplicationRecord
+    # Deviseモジュール
+    devise :database_authenticatable, :registerable, :validatable
 
-  validates :switchbot_token, presence: true
+    # JWT認証用メソッド
+    def generate_jwt
+      payload = { user_id: id, exp: 1.week.from_now.to_i }
+      JWT.encode(payload, Rails.application.credentials.secret_key_base)
+    end
+  end
 end
